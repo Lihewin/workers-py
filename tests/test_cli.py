@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from textwrap import dedent
 from unittest.mock import Mock, patch
@@ -410,8 +411,6 @@ def test_proxy_to_wrangler_handles_subprocess_error(mock_subprocess_run):
 
     # Verify the error was attempted to be called
     # shell parameter is sys.platform == "win32", which is False on Linux
-    import sys
-
     mock_subprocess_run.assert_called_once_with(
         ["npx", "--yes", "wrangler", "unknown_command"],
         check=False,
