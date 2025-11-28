@@ -33,6 +33,7 @@ class ProxyToWranglerGroup(click.Group):
                 text=True,
                 timeout=10,
                 check=False,
+                shell=sys.platform == "win32",
             )
             if result.returncode == 0:
                 wrangler_help = result.stdout
@@ -143,7 +144,9 @@ def _proxy_to_wrangler(command_name: str, args_list: list[str]) -> Never:
     command_to_run = WRANGLER_COMMAND + [command_name] + args_list
     logger.info(f"Passing command to npx wrangler: {' '.join(command_to_run)}")
     try:
-        process = subprocess.run(command_to_run, check=False, cwd=".")
+        process = subprocess.run(
+            command_to_run, check=False, cwd=".", shell=sys.platform == "win32"
+        )
         click.get_current_context().exit(process.returncode)
     except FileNotFoundError as e:
         logger.error(
@@ -156,7 +159,9 @@ def _proxy_to_create_cloudflare(args_list: list[str]) -> Never:
     command_to_run = WRANGLER_CREATE_COMMAND + args_list
     logger.info(f"Passing command to npx create-cloudflare: {' '.join(command_to_run)}")
     try:
-        process = subprocess.run(command_to_run, check=False, cwd=".")
+        process = subprocess.run(
+            command_to_run, check=False, cwd=".", shell=sys.platform == "win32"
+        )
         click.get_current_context().exit(process.returncode)
     except FileNotFoundError as e:
         logger.error(

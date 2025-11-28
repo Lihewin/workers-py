@@ -1,0 +1,19 @@
+
+    /**
+     * For more details on how to configure Wrangler, refer to:
+     * https://developers.cloudflare.com/workers/wrangler/configuration/
+     */
+    {
+        // Name of the worker
+        "name": "test-worker",
+
+        // Main script to run
+        "main": "src/worker.py",
+
+        // Compatibility date
+        "compatibility_date": "2023-10-30",
+
+        // Compatibility flags
+        "compatibility_flags": ["python_workers"]
+    }
+    

@@ -1,0 +1,13 @@
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "test-project"
+version = "0.1.0"
+description = "Test Project"
+requires-python = ">=3.8"
+dependencies = [
+    "requests==2.28.1","pydantic>=1.9.0,<2.0.0"
+]
