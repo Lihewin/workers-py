@@ -1,6 +1,7 @@
 import logging
 import re
 import subprocess
+import sys
 import tomllib
 from datetime import datetime
 from functools import cache
@@ -89,6 +90,7 @@ def run_command(
             env=env,
             check=check,
             text=True,
+            shell=sys.platform == "win32",
             **kwargs,
         )  # type: ignore[call-overload]
         if process.stdout and not capture_output:

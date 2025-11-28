@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from textwrap import dedent
 from unittest.mock import Mock, patch
@@ -409,8 +410,36 @@ def test_proxy_to_wrangler_handles_subprocess_error(mock_subprocess_run):
     assert result.exit_code == 1
 
     # Verify the error was attempted to be called
+    # shell parameter is sys.platform == "win32", which is False on Linux
     mock_subprocess_run.assert_called_once_with(
-        ["npx", "--yes", "wrangler", "unknown_command"], check=False, cwd="."
+        ["npx", "--yes", "wrangler", "unknown_command"],
+        check=False,
+        cwd=".",
+        shell=sys.platform == "win32",
+    )
+
+
+@patch("pywrangler.cli.subprocess.run")
+@patch("pywrangler.cli.sys.platform", "win32")
+def test_proxy_to_wrangler_uses_shell_on_win32(mock_subprocess_run):
+    """Test that shell=True is used on win32 platform."""
+    # Mock subprocess.run to return a successful result
+    mock_result = Mock()
+    mock_result.returncode = 0
+    mock_subprocess_run.return_value = mock_result
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["unknown_command"])
+
+    # Should exit with 0 (success)
+    assert result.exit_code == 0
+
+    # Verify shell=True was passed on win32
+    mock_subprocess_run.assert_called_once_with(
+        ["npx", "--yes", "wrangler", "unknown_command"],
+        check=False,
+        cwd=".",
+        shell=True,
     )
 
 
@@ -542,3 +571,29 @@ def test_check_wrangler_version_insufficient(mock_run_command):
 
     with pytest.raises(click.exceptions.Exit):
         check_wrangler_version()
+
+
+@patch("pywrangler.utils.subprocess.run")
+@patch("pywrangler.utils.sys.platform", "win32")
+def test_run_command_uses_shell_on_win32(mock_subprocess_run):
+    """Test that run_command uses shell=True on win32 platform."""
+    from pywrangler.utils import run_command
+
+    # Mock subprocess.run to return a successful result
+    mock_result = Mock()
+    mock_result.returncode = 0
+    mock_result.stdout = None
+    mock_subprocess_run.return_value = mock_result
+
+    # Run a command
+    run_command(["echo", "test"])
+
+    # Verify shell=True was passed on win32
+    mock_subprocess_run.assert_called_once_with(
+        ["echo", "test"],
+        cwd=None,
+        env=None,
+        check=True,
+        text=True,
+        shell=True,
+    )
